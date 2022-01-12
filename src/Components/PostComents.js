@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { app } from "../Base";
 import { GlobalContext } from "./Global/AuthState";
 import firebase from "firebase";
+import InputEmoji from "react-input-emoji";
 
 const PostComents = ({ id }) => {
 	const { current } = useContext(GlobalContext);
@@ -26,11 +27,13 @@ const PostComents = ({ id }) => {
 	return (
 		<>
 			<ComPart>
-				<input
-					onChange={(e) => {
-						setCom(e.target.value);
-					}}
-					placeholder='Add a comment...'
+				<InputEmoji
+					height={70}
+					objectFit='contain'
+					style={{ width: "100%", objectFit: "contain" }}
+					value={com}
+					onChange={setCom}
+					placeholder='Type a message'
 				/>
 				<span
 					onClick={() => {
@@ -45,6 +48,7 @@ const PostComents = ({ id }) => {
 };
 
 export default PostComents;
+
 const ComPart = styled.div`
 	display: flex;
 	justify-content: space-between;

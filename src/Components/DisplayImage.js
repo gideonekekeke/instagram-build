@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { app } from "../Base";
 import { GlobalContext } from "./Global/AuthState";
 
-const DisplayImage = ({ myID, image, name, location, tme }) => {
+const DisplayImage = ({ myID, image, name, location, tme, smallimage }) => {
 	const { current } = useContext(GlobalContext);
 	const [data, setData] = React.useState([]);
 
@@ -27,6 +27,7 @@ const DisplayImage = ({ myID, image, name, location, tme }) => {
 	return (
 		<>
 			{image ? <UserImage2 src={data?.avatar} /> : null}
+			{smallimage ? <UserImage3 src={data?.avatar} /> : null}
 			<DownHold>
 				{name ? <span>{data?.userName}</span> : null}
 				{location ? <div>Lagos, Nigeria</div> : null}
@@ -56,5 +57,14 @@ const UserImage2 = styled.img`
 	border-radius: 50%;
 	background-color: silver;
 	margin: 10px;
+	object-fit: cover;
+`;
+
+const UserImage3 = styled.img`
+	height: 20px;
+	width: 20px;
+	border-radius: 50%;
+	background-color: silver;
+	/* margin: 10px; */
 	object-fit: cover;
 `;

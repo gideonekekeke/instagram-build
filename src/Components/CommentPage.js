@@ -6,8 +6,21 @@ import DisplayImage from "./DisplayImage";
 import firebase from "firebase";
 import { GlobalContext } from "./Global/AuthState";
 import moment from "moment";
+import Picker from "emoji-picker-react";
+import InputEmoji from "react-input-emoji";
+import NestedComment from "./NestedComment";
 
 const CommentPage = () => {
+	const [chosenEmoji, setChosenEmoji] = React.useState(null);
+	const [show, setShow] = React.useState(false);
+
+	const handleShow = () => {
+		setShow(!show);
+	};
+
+	const onEmojiClick = (event, emojiObject) => {
+		setChosenEmoji(emojiObject);
+	};
 	const { current } = useContext(GlobalContext);
 	const { id } = useParams();
 
@@ -16,6 +29,9 @@ const CommentPage = () => {
 
 	const [com, setCom] = React.useState("");
 
+	const handleOnEnter = (com) => {
+		setCom(com);
+	};
 	const Commenting = async () => {
 		await app
 			.firestore()
@@ -93,7 +109,7 @@ const CommentPage = () => {
 										}}>
 										<DisplayImage tme name myID={props.createdBy} image />
 										<div style={{ marginLeft: "10px", color: "silver" }}>
-											{moment(props.createdAt.toDate()).fromNow()}
+											{moment(props?.createdAt?.toDate()).fromNow()}
 										</div>
 									</div>
 									<div
@@ -105,10 +121,17 @@ const CommentPage = () => {
 										}}>
 										{props.com}
 									</div>
+									<NestedComment
+										show={show}
+										handleShow={handleShow}
+										pID={id}
+										cID={props.id}
+									/>
 									<div
+										onClick={handleShow}
 										style={{
 											color: "silver",
-
+											cursor: "pointer",
 											marginLeft: "70px",
 										}}>
 										Reply
@@ -119,16 +142,15 @@ const CommentPage = () => {
 					</MessComp>
 
 					<ComPart>
-						<input
-							onChange={(e) => {
-								setCom(e.target.value);
-							}}
-							placeholder='Add a comment...'
+						<InputEmoji
+							value={com}
+							onChange={setCom}
+							placeholder='Type a message'
 						/>
+
 						<span
 							onClick={() => {
 								Commenting();
-								setCom("");
 							}}>
 							Post
 						</span>
@@ -140,6 +162,10 @@ const CommentPage = () => {
 };
 
 export default CommentPage;
+
+// {
+// 	moment(props.createdAt.toDate()).fromNow();
+// }
 
 const ComPart = styled.div`
 	display: flex;
@@ -182,6 +208,9 @@ const Main = styled.div`
 const LastComp = styled.div``;
 const MessComp = styled.div`
 	flex: 1;
+
+	height: 300px;
+	overflow-y: scroll;
 `;
 
 const Heading = styled.div`

@@ -18,7 +18,7 @@ import LengthComp from "./LengthComp";
 import LinkingPage from "./LinkingPage";
 
 const RightCom = () => {
-	const { current } = useContext(GlobalContext);
+	const { current, currentData } = useContext(GlobalContext);
 	const [title, setTitile] = React.useState("");
 	const [image, setImage] = React.useState("");
 	const [avatar, setAvatar] = React.useState("");
@@ -91,7 +91,7 @@ const RightCom = () => {
 			<br />
 			<Card>
 				<Sep>
-					<UserImage2 />
+					<UserImage2 src={currentData?.avatar} />
 					<input
 						onChange={(e) => {
 							setTitile(e.target.value);
@@ -357,7 +357,7 @@ const DownHold = styled.div`
 	}
 `;
 
-const UserImage2 = styled.div`
+const UserImage2 = styled.img`
 	height: 40px;
 	width: 40px;
 	border-radius: 50%;
