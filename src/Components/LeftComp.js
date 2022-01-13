@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { app } from "../Base";
+import { GlobalContext } from "./Global/AuthState";
 
 const LeftComp = () => {
 	const [data, setData] = React.useState([]);
+	const [followData, setFollowData] = React.useState([]);
+	const { current } = useContext(GlobalContext);
+	const [toggle, setToggle] = React.useState(false);
+
+	const hangleToggle = () => {
+		setToggle(!toggle);
+	};
 
 	const getPostData = async () => {
 		await app
@@ -18,9 +26,24 @@ const LeftComp = () => {
 				setData(item);
 			});
 	};
+	const getPostDatas = async () => {
+		await app
+			.firestore()
+			.collection("follows")
+
+			.onSnapshot((snapshot) => {
+				const item = [];
+				snapshot.forEach((doc) => {
+					item.push({ ...doc.data(), id: doc.id });
+				});
+				setFollowData(item);
+			});
+	};
 
 	React.useEffect(() => {
 		getPostData();
+		getPostDatas();
+		console.log(followData);
 	}, []);
 
 	return (
@@ -30,22 +53,45 @@ const LeftComp = () => {
 				suggession for you
 			</div>
 			{data.map((props) => (
-				<div
-					style={{
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "space-between",
-						width: "300px",
-					}}>
-					<div style={{ display: "flex", alignItems: "center" }}>
-						{" "}
-						<UserImage2 src={props.avatar} />
-						<DownHold>
-							<span>{props.userName}</span>
-							<div>Lagos, Nigeria</div>
-						</DownHold>
-					</div>
-					<button>follow</button>
+				<div>
+					{props.id !== current?.uid ? (
+						<div
+							style={{
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "space-between",
+								width: "300px",
+							}}>
+							<div style={{ display: "flex", alignItems: "center" }}>
+								{" "}
+								<UserImage2 src={props.avatar} />
+								<DownHold>
+									<span>{props.userName}</span>
+									<div>Lagos, Nigeria</div>
+								</DownHold>
+							</div>
+							{toggle ? (
+								<button
+									onClick={() => {
+										hangleToggle();
+									}}>
+									unfollow
+								</button>
+							) : (
+								<button
+									onClick={() => {
+										app.firestore().collection("follows").doc().set({
+											follow: props?.id,
+											tog: true,
+											createdBy: current?.uid,
+										});
+										hangleToggle();
+									}}>
+									+follow
+								</button>
+							)}
+						</div>
+					) : null}
 				</div>
 			))}
 		</Container>

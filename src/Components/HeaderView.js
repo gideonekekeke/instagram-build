@@ -23,7 +23,9 @@ const HeaderView = () => {
 						</Link>
 					</span>
 					<span>
-						<RiMessengerLine />
+						<Link style={{ color: "black" }} to='/chat'>
+							<RiMessengerLine />
+						</Link>
 					</span>
 					<span>
 						<AiOutlineCompass />
@@ -58,6 +60,7 @@ const Container = styled.div`
 	justify-content: center;
 	align-items: center;
 	position: sticky;
+	z-index: 1;
 	top: 0;
 	input {
 		height: 40px;

@@ -5,21 +5,21 @@ import HomeScreen from "./Components/HomeScreen";
 import RegistrationPage from "./Components/RegistrationPage";
 import HeaderView from "./Components/HeaderView";
 import CommentPage from "./Components/CommentPage";
-import { GlobalProvider } from "./Components/Global/AuthState";
+
+import ChatScreen from "./Components/ChatScreen";
 
 function App() {
 	return (
 		<div>
-			<GlobalProvider>
-				<Router>
-					<HeaderView />
-					<Routes>
-						<Route path='/' element={<HomeScreen />} />
-						<Route path='/register' element={<RegistrationPage />} />
-						<Route path='/comments/:id' element={<CommentPage />} />
-					</Routes>
-				</Router>
-			</GlobalProvider>
+			<Router>
+				<HeaderView />
+				<Routes>
+					<Route path='/' element={<HomeScreen />} />
+					<Route path='/register' element={<RegistrationPage />} />
+					<Route path='/comments/:id' element={<CommentPage />} />
+					<Route path='/chat' element={<ChatScreen />} />
+				</Routes>
+			</Router>
 		</div>
 	);
 }
