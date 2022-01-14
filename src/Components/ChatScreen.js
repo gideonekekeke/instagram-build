@@ -17,6 +17,10 @@ const ChatScreen = () => {
 
 	const getIt = useSelector((state) => state.persistedReducer.chatID);
 
+	// var now = Date.now();
+	// var cutoff = now - 2 * 60 * 60 * 1000;
+	// console.log(cutoff);
+
 	const Chatting = async () => {
 		await app
 			.firestore()
@@ -50,7 +54,9 @@ const ChatScreen = () => {
 			.firestore()
 			.collection("follows")
 			.doc(getIt)
+
 			.collection("chat")
+			.orderBy("createdAt", "asc")
 			.onSnapshot((snapshot) => {
 				const item = [];
 				snapshot.forEach((doc) => {
@@ -63,6 +69,15 @@ const ChatScreen = () => {
 	React.useEffect(() => {
 		getFollowData();
 		getChattingData(getIt);
+
+		// setInterval(() => {
+		// 	app
+		// 		.firestore()
+		// 		.collection("follows")
+		// 		.doc(getIt)
+
+		// 		.delete();
+		// }, 3000);
 	}, [getIt]);
 
 	return (
@@ -109,7 +124,17 @@ const ChatScreen = () => {
 					<br />
 					<MessComp>
 						{getChat?.map((props) => (
-							<div>{props.chatNow}</div>
+							<div>
+								{props.createdBy === current?.uid ? (
+									<MessageContainer bg='#EFEFEF'>
+										{props.chatNow}
+									</MessageContainer>
+								) : (
+									<MessageContainer bg='white' ml='320px'>
+										{props.chatNow}
+									</MessageContainer>
+								)}
+							</div>
 						))}
 					</MessComp>
 
@@ -131,6 +156,20 @@ const ChatScreen = () => {
 };
 
 export default ChatScreen;
+
+const MessageContainer = styled.div`
+	padding: 20px 30px;
+	background-color: red;
+	margin: 5px;
+	min-width: 100px;
+	justify-content: flex-start;
+	right: 0;
+	margin-left: ${({ ml }) => ml};
+	max-width: 200px;
+	border-radius: 360px;
+	background: ${({ bg }) => bg};
+	border: 1px solid silver;
+`;
 
 const ComPart = styled.div`
 	display: flex;

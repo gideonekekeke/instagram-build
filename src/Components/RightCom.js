@@ -16,6 +16,7 @@ import DisplayImage from "./DisplayImage";
 import PostComents from "./PostComents";
 import LengthComp from "./LengthComp";
 import LinkingPage from "./LinkingPage";
+import DeleteStory from "./DeleteStory";
 
 const RightCom = () => {
 	const { current, currentData } = useContext(GlobalContext);
@@ -23,8 +24,24 @@ const RightCom = () => {
 	const [image, setImage] = React.useState("");
 	const [avatar, setAvatar] = React.useState("");
 	const [percent, setPercent] = React.useState(0.0000001);
+	const [avatarStory, setAvatarStory] = React.useState("");
+	const [percentSory, setPercentStory] = React.useState(0.0000001);
 	const [data, setData] = React.useState([]);
+	const [dataStory, setDataStory] = React.useState([]);
 
+	const getPostDataStory = async () => {
+		await app
+			.firestore()
+			.collection("story")
+
+			.onSnapshot((snapshot) => {
+				const item = [];
+				snapshot.forEach((doc) => {
+					item.push({ ...doc.data(), id: doc.id });
+				});
+				setDataStory(item);
+			});
+	};
 	const getPostData = async () => {
 		await app
 			.firestore()
@@ -39,6 +56,29 @@ const RightCom = () => {
 			});
 	};
 
+	const onUploadStories = async (e) => {
+		const file = e.target.files[0];
+
+		const fileRef = await app.storage().ref();
+		const storageRef = fileRef.child("avatar/" + file.name).put(file);
+
+		storageRef.on(
+			firebase.storage.TaskEvent.STATE_CHANGED,
+			(snapShot) => {
+				const counter = (snapShot.bytesTransferred / snapShot.totalBytes) * 100;
+
+				setPercentStory(counter);
+				console.log(counter);
+			},
+			(err) => console.log(err.message),
+			() => {
+				storageRef.snapshot.ref.getDownloadURL().then((URL) => {
+					setAvatarStory(URL);
+					console.log(URL);
+				});
+			},
+		);
+	};
 	const onUploadImage = async (e) => {
 		const file = e.target.files[0];
 		const save = URL.createObjectURL(file);
@@ -73,20 +113,47 @@ const RightCom = () => {
 		});
 		setTitile("");
 	};
+	const PostStories = async () => {
+		await app.firestore().collection("story").doc().set({
+			avatarStory,
+			createdBy: current?.uid,
+			createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+		});
+	};
 
 	React.useEffect(() => {
 		getPostData();
+		getPostDataStory();
 		console.log(data);
+
+		setInterval(() => {
+			app
+				.firestore()
+				.collection("story")
+				.doc()
+
+				.delete();
+		}, 3000);
 	}, []);
 
 	return (
 		<Container>
 			<StoryCard>
 				<Hold>
-					{" "}
-					<UserImage />
-					<span>gideon ekeke</span>
+					<div style={{ display: "flex", alignItems: "center" }}>
+						{" "}
+						<DisplayImage myID={current?.uid} image />
+						<input onChange={onUploadStories} id='pix' type='file' />
+						<UpBut htmlFor='pix'>+</UpBut>
+					</div>
+					<UpBut2 onClick={PostStories}>Post</UpBut2>
 				</Hold>
+				{dataStory.map((props) => (
+					<div>
+						<StatusImage src={props.avatarStory} />
+						<DeleteStory createdAt={props.createdAt} id={props.id} />
+					</div>
+				))}
 			</StoryCard>
 			<br />
 			<Card>
@@ -208,6 +275,42 @@ const RightCom = () => {
 };
 
 export default RightCom;
+
+const StatusImage = styled.img`
+	height: 50px;
+	width: 50px;
+	background: silver;
+	border-radius: 50%;
+	margin: 10px;
+	border: 1px solid #0080f7;
+	object-fit: cover;
+`;
+
+const UpBut2 = styled.button`
+	background: #0080f7;
+	width: 100px;
+	font-size: 12px;
+	justify-content: center;
+	align-items: center;
+	display: flex;
+	color: white;
+	border-radius: 10px;
+	cursor: pointer;
+`;
+const UpBut = styled.label`
+	background: #0080f7;
+	width: 15px;
+	height: 15px;
+	font-size: 12px;
+	justify-content: center;
+	align-items: center;
+	display: flex;
+	color: white;
+	border-radius: 50%;
+	cursor: pointer;
+	margin-left: -20px;
+	margin-top: 20px;
+`;
 
 const ComPart = styled.div`
 	display: flex;
@@ -396,6 +499,10 @@ const Hold = styled.div`
 		margin-top: 4px;
 		font-weight: bold;
 	}
+
+	input {
+		display: none;
+	}
 `;
 
 const UserImage = styled.div`
@@ -406,12 +513,13 @@ const UserImage = styled.div`
 	/* margin: 10px; */
 `;
 const StoryCard = styled.div`
-	height: 90px;
+	height: 100px;
 	width: 590px;
 	background: white;
 	display: flex;
-	/* justify-content: center; */
-	/* flex-direction: column; */
+	// justify-content: center;
+	align-items: center;
+	/* flex-direction: column; 
 	/* align-items: center; */
 	box-shadow: 0px 5px 2px -5px rgba(0, 0, 0, 0.4);
 	margin-top: 30px;

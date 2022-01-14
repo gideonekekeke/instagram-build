@@ -77,8 +77,7 @@ const RegistrationPage = () => {
 	});
 
 	const LoginUser = handleSubmit(async (val) => {
-		const { userName, email, password } = val;
-
+		const { email, password } = val;
 		app.auth().signInWithEmailAndPassword(email, password);
 	});
 
